@@ -12,7 +12,7 @@
                     <div class="input-group">
                         <label for="status_filter" class="input-group-text">Filter by status: </label>
                         <select name="status" id="status_filter" class="form-select" onchange="this.form.submit()">
-                            <option value="" {% if app.request.query.get('status') == '' %}selected{% endif %}>All</option>
+                            <option value="" {% if app.request.query.get('status') is empty %}selected{% endif %}>All</option>
                             <option value="1" {% if app.request.query.get('status') == '1' %}selected{% endif %}>Completed</option>
                             <option value="0" {% if app.request.query.get('status') == '0' %}selected{% endif %}>Not completed</option>
                         </select>

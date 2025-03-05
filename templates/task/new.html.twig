@@ -6,7 +6,7 @@
 <div class="container mt-5">
     <h1>Create new Task</h1>
 
-    {{ include('task/_form.html.twig') }}
+    {{ include('task/_form.html.twig', {'method': 'POST'}) }}
 
 </div>
 {% endblock %}

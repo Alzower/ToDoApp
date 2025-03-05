@@ -18,13 +18,11 @@ final class TaskController extends AbstractController
     public function index(Request $request, TaskRepository $taskRepository): Response
     {
         $status = $request->query->get('status');
-
-        if ($status !== null) {
-            $status = (bool)$status;
-
-            $tasks = $taskRepository->findBy(['status' => $status]);
-        } else {
+        if ($status === '' || $status === null) {
             $tasks = $taskRepository->findAll();
+        } else {
+            $status = (bool)$status;
+            $tasks = $taskRepository->findBy(['status' => $status]);
         }
 
         return $this->render('task/index.html.twig', [
@@ -55,7 +53,6 @@ final class TaskController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($task);
             $entityManager->flush();
-
             return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -74,22 +71,31 @@ final class TaskController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_task_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Task $task, EntityManagerInterface $entityManager): Response
+    public function edit(int $id, Request $request, EntityManagerInterface $entityManager): Response
     {
+        $task = $entityManager->getRepository(Task::class)->find($id);
+
+        if (!$task) {
+            throw $this->createNotFoundException("La tâche avec l'ID $id n'existe pas.");
+        }
+
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
 
+
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
             return $this->redirectToRoute('app_task_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('task/edit.html.twig', [
             'task' => $task,
-            'form' => $form,
+            'form' => $form->createView(),
         ]);
     }
+
+
+
 
     #[Route('/{id}', name: 'app_task_delete', methods: ['DELETE'])]
     public function delete(EntityManagerInterface $entityManager, Int $id,): Response
